@@ -63,16 +63,16 @@ func printResolutions(resolutions []resenum.Resolution, standard bool) {
 
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
-	t.AppendHeader(table.Row{"#", "Resolution", "Note"})
-	for i, r := range resolutions {
+	t.AppendHeader(table.Row{"Resolution", "Note"})
+	for _, r := range resolutions {
 		if standard && r.Type == resenum.ResNonStandard {
 			continue
 		}
 		displayed++
-		t.AppendRow(table.Row{i, r.ToString(), r.Type.ToString()})
+		t.AppendRow(table.Row{r.ToString(), r.Type.ToString()})
 	}
 
 	t.AppendSeparator()
-	t.AppendFooter(table.Row{"Total", displayed, ""})
+	t.AppendFooter(table.Row{"Total", displayed})
 	t.Render()
 }
