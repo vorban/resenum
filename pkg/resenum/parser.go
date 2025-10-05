@@ -7,12 +7,8 @@ import (
 )
 
 type Pair struct {
-	x uint
-	y uint
-}
-
-func MakePair(x uint, y uint) Pair {
-	return Pair{x, y}
+	X uint
+	Y uint
 }
 
 // parses `s`, assuming it is formatteda as `x:y`. Returns 0,0,error on failure
@@ -52,12 +48,12 @@ func ParseOptionalUintPair(s string, def Pair) (Pair, error) {
 
 	rx, err = strconv.ParseUint(parts[0], 10, 32)
 	if err != nil {
-		rx = uint64(def.x)
+		rx = uint64(def.X)
 	}
 
 	ry, err = strconv.ParseUint(parts[1], 10, 32)
 	if err != nil {
-		ry = uint64(def.y)
+		ry = uint64(def.Y)
 	}
 
 	return Pair{uint(rx), uint(ry)}, nil

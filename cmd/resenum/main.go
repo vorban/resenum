@@ -12,6 +12,7 @@ import (
 func main() {
 	min_raw := flag.String("min", "0:0", "Minimum resolution, expressed as X:Y. Each dimension is optional")
 	max_raw := flag.String("max", "1920:1080", "Maximum resolution, expressed as X:Y. Each dimension is optional")
+	scaleto_raw := flag.String("scaleto", "0:0", "A resolution the results must scale to by a natural factor, i.e. 50x50 divides 200x200 but not 190x190")
 	standard := flag.Bool("standard", false, "Standard resolutions only, i.e. SD, HD, FHD, QHD and UHD")
 	help := flag.Bool("help", false, "Show help")
 
@@ -34,31 +35,37 @@ func main() {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
-	min, err := resenum.ParseOptionalUintPair(*min_raw, resenum.MakePair(0, 0))
+	min, err := resenum.ParseOptionalUintPair(*min_raw, resenum.Pair{X: 0, Y: 0})
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
-	max, err := resenum.ParseOptionalUintPair(*max_raw, resenum.MakePair(1920, 1080))
+	max, err := resenum.ParseOptionalUintPair(*max_raw, resenum.Pair{X: 1920, Y: 1080})
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+	scaleto, err := resenum.ParseOptionalUintPair(*scaleto_raw, resenum.Pair{X: 0, Y: 0})
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 
 	resolutions := resenum.Enumerate(ratio, min, max)
-	printResolutions(resolutions, *standard)
+	printResolutions(resolutions, *standard, scaleto)
 }
 
 func printHelp() {
-	fmt.Println("Usage: resenum [--min=] [--max=] [--standard] [--help] {ratio}")
+	fmt.Println("Usage: resenum [--min=] [--max=] [--scaleto=] [--standard] [--help] {ratio}")
 	flag.PrintDefaults()
 	fmt.Println("Examples:")
 	fmt.Println("\tresenum 16:9")
-	fmt.Println("\tresenum 16:9 --min=256:")
-	fmt.Println("\tresenum 16:9 --max=:1080")
+	fmt.Println("\tresenum --min=256: 16:9")
+	fmt.Println("\tresenum --max=:1080 16:9")
+	fmt.Println("\tresenum --min 200: --max 1000: --scaleto 1920: 16:9")
 }
 
-func printResolutions(resolutions []resenum.Resolution, standard bool) {
+func printResolutions(resolutions []resenum.Resolution, standard bool, scaleto resenum.Pair) {
 	var displayed uint = 0
 
 	t := table.NewWriter()
@@ -66,6 +73,9 @@ func printResolutions(resolutions []resenum.Resolution, standard bool) {
 	t.AppendHeader(table.Row{"Resolution", "Note"})
 	for _, r := range resolutions {
 		if standard && r.Type == resenum.ResNonStandard {
+			continue
+		}
+		if scaleto.X%r.AsPair().X != 0 || scaleto.Y%r.AsPair().Y != 0 {
 			continue
 		}
 		displayed++

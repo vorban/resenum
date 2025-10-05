@@ -47,17 +47,17 @@ func (res Resolution) AsPair() Pair {
 func Enumerate(ratio Pair, min Pair, max Pair) []Resolution {
 	var resolutions []Resolution
 
-	x, y := min.x, min.y
-	for x*ratio.y != y*ratio.x {
-		if x*ratio.y < y*ratio.x {
+	x, y := min.X, min.Y
+	for x*ratio.Y != y*ratio.X {
+		if x*ratio.Y < y*ratio.X {
 			x++
 		} else {
 			y++
 		}
 	}
 
-	k := getMultiplier(x, ratio.x)
-	for ; x <= max.x && y <= max.y; x, y = x+ratio.x, y+ratio.y {
+	k := getMultiplier(x, ratio.X)
+	for ; x <= max.X && y <= max.Y; x, y = x+ratio.X, y+ratio.Y {
 		res_type := getResolutionType(k)
 		k++
 
